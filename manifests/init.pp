@@ -96,8 +96,12 @@ class corosync(
   $rrp_mode           = 'none',
   $ttl                = false,
   $packages           = ['corosync', 'pacemaker'],
+  $nodelist           = ['127.0.0.1', '127.0.0.2'],
+#  $corosync_version   = ::$::corosync::params::corosync_version,
 ) {
+ include corosync::params
 
+#  $corosync_version   = ::$corosync::params::corosync_version:
   # Making it possible to provide data with parameterized class declarations or
   # Console.
   $threads_real = $threads ? {
@@ -132,9 +136,9 @@ class corosync(
     default => $unicast_addresses
   }
   if $unicast_addresses_real == 'UNSET' {
-    $corosync_conf = "${module_name}/corosync.conf.erb"
+    $corosync_conf = "${module_name}/${::corosync::params::corosync_conf}.conf.erb"
   } else {
-    $corosync_conf = "${module_name}/corosync.conf.udpu.erb"
+    $corosync_conf = "${module_name}/${::corosync::params::corosync_conf}.conf.udpu.erb"
   }
 
   # We use an if here instead of a selector since we need to fail the catalog if
@@ -257,7 +261,7 @@ class corosync(
       command => 'echo "Node appears to be on standby" && false',
       path    => [ '/bin', '/usr/bin', '/sbin', '/usr/sbin' ],
       onlyif  => "crm node status|grep ${::hostname}-standby|grep 'value=\"on\"'",
-      require => Service['corosync'],
+      require => [ Service['corosync'], Service['pacemaker'] ],
     }
   }
 
@@ -266,7 +270,7 @@ class corosync(
       command => 'crm node online',
       path    => [ '/bin', '/usr/bin', '/sbin', '/usr/sbin' ],
       onlyif  => "crm node status|grep ${::hostname}-standby|grep 'value=\"on\"'",
-      require => Service['corosync'],
+      require => [ Service['corosync'], Service['pacemaker'] ],
     }
   }
 
@@ -274,5 +278,11 @@ class corosync(
     ensure    => running,
     enable    => true,
     subscribe => File[ [ '/etc/corosync/corosync.conf', '/etc/corosync/service.d' ] ],
+    notify => Service['pacemaker'],
   }
+  
+  service { 'pacemaker':
+    ensure => running,
+    enable => true,
+  } 
 }
