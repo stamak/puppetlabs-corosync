@@ -65,6 +65,9 @@
 # [*packages*]
 #   Define the list of software packages which should be installed.
 #
+# [*nodelist*]
+#   Define the node list which are in cluster (it is required by Corosync 2.x)
+#
 # === Examples
 #
 #  class { 'corosync':
@@ -96,8 +99,7 @@ class corosync(
   $rrp_mode           = 'none',
   $ttl                = false,
   $packages           = ['corosync', 'pacemaker'],
-  $nodelist           = ['127.0.0.1', '127.0.0.2'],
-#  $corosync_version   = ::$::corosync::params::corosync_version,
+  $nodelist           = [ $::ipaddress ],
 ) {
  include corosync::params
 
