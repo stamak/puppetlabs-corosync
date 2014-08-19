@@ -163,6 +163,8 @@ fall together a point you in the right direction when Corosync fails unexpectedl
 A simple but complete manifest example can be found on [Cody Herriges' Github](https://github.com/ody/ha-demo), plus
 there are more incomplete examples spread across the [Puppet Labs Github](https://github.com/puppetlabs).
 
+Added the Ubuntu 14.04 (trusty) support. Ubuntu 14.04 use Corosync 2.x, which is NOT compatible with previous versions of Corosync (1.3/1.4)
+
 Contributors
 ------------
 
